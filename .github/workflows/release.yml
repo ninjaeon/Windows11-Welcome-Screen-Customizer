@@ -11,6 +11,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # Fetch all history for changelog generation
     
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.1
@@ -71,6 +73,49 @@ jobs:
         # Verify ZIP contents
         Write-Host "ZIP file contents:"
         Compress-Archive -Path ".\ReleasePackage\*" -DestinationPath "WelcomeScreenCustomizer.zip" -Force -WhatIf
+
+    - name: Generate Release Notes
+      id: release_notes
+      shell: pwsh
+      run: |
+        # Get the current tag
+        $currentTag = "${{ github.ref_name }}"
+        
+        # Get the previous tag
+        $previousTag = $(git describe --tags --abbrev=0 "${{ github.ref_name }}^" 2>$null)
+        
+        # Generate changelog
+        $changelog = if ($previousTag) {
+            git log --pretty=format:"- %s" "$previousTag..$currentTag"
+        } else {
+            git log --pretty=format:"- %s" "$currentTag"
+        }
+        
+        # Create release notes content
+        $releaseNotes = @"
+        # Windows 11 Welcome Screen Customizer $currentTag
+        
+        ## Changes in this version:
+        $changelog
+        
+        ## Package Contents
+        - WelcomeScreenCustomizer.exe (Main application)
+        - app.ico (Application icon)
+        - README.md (Documentation)
+        
+        ## Important Notes
+        - This application requires administrative privileges
+        - Preventing OS override is required for the changes to persist
+        - Compatible with Windows 11 only
+        
+        ## Installation
+        1. Download and extract WelcomeScreenCustomizer.zip
+        2. Run WelcomeScreenCustomizer.exe as administrator
+        3. Follow the in-app instructions
+        "@
+        
+        # Save release notes to file
+        $releaseNotes | Out-File -FilePath release_notes.md -Encoding UTF8
       
     - name: Create Release
       id: create_release
@@ -82,12 +127,4 @@ jobs:
         draft: false
         prerelease: false
         generate_release_notes: true
-        body: |
-          Windows 11 Welcome Screen Customizer Release
-          
-          This release includes:
-          - WelcomeScreenCustomizer.exe (Main application)
-          - app.ico (Application icon)
-          - README.md (Documentation)
-          
-          Please run the application with administrative privileges.
+        body_path: release_notes.md
