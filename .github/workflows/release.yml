@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write
     
     steps:
     - uses: actions/checkout@v3
@@ -18,9 +20,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
       with:
         msbuild-architecture: x64
-        
-    - name: Setup VSTest Path
-      uses: darenm/Setup-VSTest@v1
+        vs-version: '[17.0,18.0)'
         
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1.1.1
@@ -35,22 +35,23 @@ jobs:
       run: nuget restore WelcomeScreenCustomizer.sln
       
     - name: Build Solution
+      shell: pwsh
       run: |
         msbuild WelcomeScreenCustomizer.sln `
           /p:Configuration=Release `
           /p:Platform="Any CPU" `
-          /p:OutputPath="bin\Release" `
-          /p:DeployOnBuild=true `
-          /p:OutDir="$env:GITHUB_WORKSPACE\artifacts" `
+          /p:OutputPath=".\bin\Release" `
+          /p:OutDir=".\bin\Release" `
+          /t:Rebuild `
+          /p:DebugSymbols=false `
+          /p:DebugType=None `
           /verbosity:detailed
       
     - name: Echo Build Output Directory
       shell: pwsh
       run: |
         Write-Host "Build Output Directory Structure:"
-        Get-ChildItem -Path "$env:GITHUB_WORKSPACE\artifacts" -Recurse | Select-Object FullName
-        Write-Host "Bin Directory Structure:"
-        Get-ChildItem -Path "bin" -Recurse | Select-Object FullName
+        Get-ChildItem -Path ".\bin\Release" -Recurse | Select-Object FullName
       
     - name: Create Release Package
       shell: pwsh
@@ -59,7 +60,11 @@ jobs:
         New-Item -ItemType Directory -Force -Path ".\ReleasePackage"
         
         # Find and copy the executable
-        $exePath = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter "WelcomeScreenCustomizer.exe" -Recurse | Select-Object -First 1 -ExpandProperty FullName
+        $exePath = Get-ChildItem -Path ".\bin\Release" -Filter "WelcomeScreenCustomizer.exe" -Recurse | Select-Object -First 1 -ExpandProperty FullName
+        if (-not $exePath) {
+            Write-Error "Could not find WelcomeScreenCustomizer.exe in the build output"
+            exit 1
+        }
         Write-Host "Found executable at: $exePath"
         Copy-Item $exePath -Destination ".\ReleasePackage\"
         
@@ -67,12 +72,12 @@ jobs:
         Copy-Item ".\app.ico" -Destination ".\ReleasePackage\"
         Copy-Item ".\README.md" -Destination ".\ReleasePackage\"
         
+        # List contents before creating ZIP
+        Write-Host "Release Package Contents:"
+        Get-ChildItem -Path ".\ReleasePackage" -Recurse
+        
         # Create ZIP file
         Compress-Archive -Path ".\ReleasePackage\*" -DestinationPath "WelcomeScreenCustomizer.zip" -Force
-        
-        # Verify ZIP contents
-        Write-Host "ZIP file contents:"
-        Compress-Archive -Path ".\ReleasePackage\*" -DestinationPath "WelcomeScreenCustomizer.zip" -Force -WhatIf
 
     - name: Generate Release Notes
       id: release_notes
@@ -120,6 +125,7 @@ jobs:
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
