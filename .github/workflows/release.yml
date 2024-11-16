@@ -1,0 +1,38 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger on version tags
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.1
+      
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.1.1
+      
+    - name: Restore NuGet packages
+      run: nuget restore WelcomeScreenCustomizer.sln
+      
+    - name: Build Solution
+      run: msbuild WelcomeScreenCustomizer.sln /p:Configuration=Release
+      
+    - name: Create Release ZIP
+      run: |
+        Compress-Archive -Path "bin\Release\WelcomeScreenCustomizer.exe" -DestinationPath "WelcomeScreenCustomizer.zip"
+      
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: WelcomeScreenCustomizer.zip
+        draft: false
+        prerelease: false
+        generate_release_notes: true
