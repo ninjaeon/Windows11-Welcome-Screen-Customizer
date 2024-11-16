@@ -27,7 +27,7 @@ namespace WelcomeScreenCustomizer
         private void InitializeComponents()
         {
             // Set form properties
-            this.Text = "Windows 10/11 Welcome Login Screen Background Chooser";
+            this.Text = "Windows 11 Welcome Screen Customizer";
             this.Size = new Size(800, 600);
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -61,7 +61,7 @@ namespace WelcomeScreenCustomizer
             // Title label
             Label titleLabel = new Label
             {
-                Text = "Windows 10/11 Welcome Login Screen Background Chooser",
+                Text = "Windows 11 Welcome Screen Customizer",
                 Font = new Font("Segoe UI", 16F, FontStyle.Regular),
                 ForeColor = primaryColor,
                 AutoSize = false,

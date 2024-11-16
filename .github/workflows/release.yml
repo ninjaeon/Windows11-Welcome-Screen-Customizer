@@ -68,8 +68,7 @@ jobs:
         Write-Host "Found executable at: $exePath"
         Copy-Item $exePath -Destination ".\ReleasePackage\"
         
-        # Copy icon and any other necessary files
-        Copy-Item ".\app.ico" -Destination ".\ReleasePackage\"
+        # Copy documentation
         Copy-Item ".\README.md" -Destination ".\ReleasePackage\"
         
         # List contents before creating ZIP
@@ -104,14 +103,14 @@ jobs:
         $changelog
         
         ## Package Contents
-        - WelcomeScreenCustomizer.exe (Main application)
-        - app.ico (Application icon)
+        - WelcomeScreenCustomizer.exe (Main application with embedded icon)
         - README.md (Documentation)
         
         ## Important Notes
         - This application requires administrative privileges
         - Preventing OS override is required for the changes to persist
         - Compatible with Windows 11 only
+        - The application is now fully portable - no additional files needed!
         
         ## Installation
         1. Download and extract WelcomeScreenCustomizer.zip
