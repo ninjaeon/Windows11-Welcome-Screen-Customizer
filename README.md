@@ -8,8 +8,8 @@ In Windows 11, changing your lock screen background through Windows Settings onl
 ## Features
 - Select an image file through Windows Explorer
 - Set the image as welcome screen background
-- Option to prevent further changes
-- Requires administrative privileges to modify registry
+- Prevents override by OS
+- Undo changes with a single click
 
 ## Requirements
 - Windows 11

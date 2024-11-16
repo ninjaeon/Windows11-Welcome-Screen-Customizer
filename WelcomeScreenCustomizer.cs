@@ -16,6 +16,7 @@ namespace WelcomeScreenCustomizer
         private Color buttonHoverColor = Color.FromArgb(0, 102, 184);
         private PictureBox previewBox;
         private Label fileLabel;
+        private Label versionLabel;
 
         public MainForm()
         {
@@ -38,10 +39,12 @@ namespace WelcomeScreenCustomizer
             // Set the application icon
             try
             {
-                string iconPath = Path.Combine(Application.StartupPath, "app.ico");
-                if (File.Exists(iconPath))
+                using (Stream iconStream = GetType().Assembly.GetManifestResourceStream("app.ico"))
                 {
-                    this.Icon = new Icon(iconPath);
+                    if (iconStream != null)
+                    {
+                        this.Icon = new Icon(iconStream);
+                    }
                 }
             }
             catch (Exception)
@@ -85,6 +88,24 @@ namespace WelcomeScreenCustomizer
                 TextAlign = ContentAlignment.MiddleCenter
             };
             mainPanel.Controls.Add(instructionLabel);
+
+            // Version label
+            Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            string versionText = $"{version.Major}.{version.Minor}.{version.Build}";
+            versionLabel = new Label
+            {
+                Text = $"v{versionText}",
+                Font = new Font("Segoe UI", 8F, FontStyle.Regular),
+                ForeColor = Color.Gray,
+                AutoSize = true,
+                Location = new Point(mainPanel.Width - 80, mainPanel.Height - 25)
+            };
+            mainPanel.Controls.Add(versionLabel);
+            mainPanel.Resize += (s, e) => 
+            {
+                // Keep version label in bottom-right corner when form is resized
+                versionLabel.Location = new Point(mainPanel.Width - 80, mainPanel.Height - 25);
+            };
 
             // File path panel
             Panel filePanel = new Panel
