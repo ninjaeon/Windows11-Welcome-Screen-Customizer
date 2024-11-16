@@ -32,7 +32,7 @@ If you prefer to make these changes manually without using the application, foll
      * Name: `LockScreenImageUrl`, Value: Same as LockScreenImagePath
      * Name: `LockScreenImageStatus`, Value: `1`
 
-4. To prevent further changes (optional):
+4. To prevent override by OS (required):
    - Navigate to: `HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Personalization`
    - If the key doesn't exist, create it
    - Create a String Value (REG_SZ):
