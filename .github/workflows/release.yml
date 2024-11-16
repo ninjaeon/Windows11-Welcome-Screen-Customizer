@@ -12,29 +12,65 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Setup MSBuild
+    - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.1
-      
+      with:
+        msbuild-architecture: x64
+        
+    - name: Setup VSTest Path
+      uses: darenm/Setup-VSTest@v1
+        
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1.1.1
+      
+    - name: Echo Directory Structure Before Build
+      shell: pwsh
+      run: |
+        Write-Host "Current Directory Structure:"
+        Get-ChildItem -Recurse | Select-Object FullName
       
     - name: Restore NuGet packages
       run: nuget restore WelcomeScreenCustomizer.sln
       
     - name: Build Solution
-      run: msbuild WelcomeScreenCustomizer.sln /p:Configuration=Release /p:Platform="Any CPU"
-      
-    - name: List Build Output
       run: |
-        dir /s bin
-        dir /s WelcomeScreenCustomizer.exe
+        msbuild WelcomeScreenCustomizer.sln `
+          /p:Configuration=Release `
+          /p:Platform="Any CPU" `
+          /p:OutputPath="bin\Release" `
+          /p:DeployOnBuild=true `
+          /p:OutDir="$env:GITHUB_WORKSPACE\artifacts" `
+          /verbosity:detailed
       
-    - name: Create Release ZIP
+    - name: Echo Build Output Directory
+      shell: pwsh
       run: |
-        New-Item -ItemType Directory -Force -Path .\Release
-        Copy-Item ".\bin\Release\WelcomeScreenCustomizer.exe" -Destination ".\Release\"
-        Copy-Item ".\app.ico" -Destination ".\Release\"
-        Compress-Archive -Path ".\Release\*" -DestinationPath "WelcomeScreenCustomizer.zip" -Force
+        Write-Host "Build Output Directory Structure:"
+        Get-ChildItem -Path "$env:GITHUB_WORKSPACE\artifacts" -Recurse | Select-Object FullName
+        Write-Host "Bin Directory Structure:"
+        Get-ChildItem -Path "bin" -Recurse | Select-Object FullName
+      
+    - name: Create Release Package
+      shell: pwsh
+      run: |
+        # Create release directory
+        New-Item -ItemType Directory -Force -Path ".\ReleasePackage"
+        
+        # Find and copy the executable
+        $exePath = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter "WelcomeScreenCustomizer.exe" -Recurse | Select-Object -First 1 -ExpandProperty FullName
+        Write-Host "Found executable at: $exePath"
+        Copy-Item $exePath -Destination ".\ReleasePackage\"
+        
+        # Copy icon and any other necessary files
+        Copy-Item ".\app.ico" -Destination ".\ReleasePackage\"
+        Copy-Item ".\README.md" -Destination ".\ReleasePackage\"
+        
+        # Create ZIP file
+        Compress-Archive -Path ".\ReleasePackage\*" -DestinationPath "WelcomeScreenCustomizer.zip" -Force
+        
+        # Verify ZIP contents
+        Write-Host "ZIP file contents:"
+        Compress-Archive -Path ".\ReleasePackage\*" -DestinationPath "WelcomeScreenCustomizer.zip" -Force -WhatIf
       
     - name: Create Release
       id: create_release
@@ -46,3 +82,12 @@ jobs:
         draft: false
         prerelease: false
         generate_release_notes: true
+        body: |
+          Windows 11 Welcome Screen Customizer Release
+          
+          This release includes:
+          - WelcomeScreenCustomizer.exe (Main application)
+          - app.ico (Application icon)
+          - README.md (Documentation)
+          
+          Please run the application with administrative privileges.
