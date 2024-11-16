@@ -66,7 +66,10 @@ jobs:
             exit 1
         }
         Write-Host "Found executable at: $exePath"
+        
+        # Copy executable to release package and standalone location
         Copy-Item $exePath -Destination ".\ReleasePackage\"
+        Copy-Item $exePath -Destination ".\WelcomeScreenCustomizer.exe"
         
         # Copy documentation
         Copy-Item ".\README.md" -Destination ".\ReleasePackage\"
@@ -102,6 +105,10 @@ jobs:
         ## Changes in this version:
         $changelog
         
+        ## Downloads
+        - **WelcomeScreenCustomizer.zip** - Full package with documentation
+        - **WelcomeScreenCustomizer.exe** - Standalone executable
+        
         ## Package Contents
         - WelcomeScreenCustomizer.exe (Main application with embedded icon)
         - README.md (Documentation)
@@ -113,8 +120,14 @@ jobs:
         - The application is now fully portable - no additional files needed!
         
         ## Installation
+        ### Option 1: ZIP Package
         1. Download and extract WelcomeScreenCustomizer.zip
         2. Run WelcomeScreenCustomizer.exe as administrator
+        3. Follow the in-app instructions
+        
+        ### Option 2: Standalone Executable
+        1. Download WelcomeScreenCustomizer.exe
+        2. Run as administrator
         3. Follow the in-app instructions
         "@
         
@@ -128,7 +141,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        files: WelcomeScreenCustomizer.zip
+        files: |
+          WelcomeScreenCustomizer.zip
+          WelcomeScreenCustomizer.exe
         draft: false
         prerelease: false
         generate_release_notes: true
