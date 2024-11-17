@@ -339,10 +339,26 @@ namespace WelcomeScreenCustomizer
                 {
                     if (key != null)
                     {
+                        // Delete all values
                         try { key.DeleteValue("LockScreenImageStatus"); } catch { }
                         try { key.DeleteValue("LockScreenImagePath"); } catch { }
                         try { key.DeleteValue("LockScreenImageUrl"); } catch { }
+
+                        // If the key is empty after deleting values, delete the entire key
+                        if (key.GetValueNames().Length == 0 && key.GetSubKeyNames().Length == 0)
+                        {
+                            Registry.LocalMachine.DeleteSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\PersonalizationCSP", false);
+                        }
                     }
+                }
+
+                // Clear the UI
+                selectedImagePath = null;
+                fileLabel.Text = "No file selected";
+                if (previewBox.Image != null)
+                {
+                    previewBox.Image.Dispose();
+                    previewBox.Image = null;
                 }
 
                 MessageBox.Show("All lock screen registry changes have been removed.",
