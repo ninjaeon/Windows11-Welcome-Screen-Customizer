@@ -52,6 +52,8 @@ If you prefer to make these changes manually without using the application, foll
 
 Note: Always backup your registry before making manual modifications. Incorrect registry changes can cause system issues.
 
+The idea for this came from this [reddit post](https://www.reddit.com/r/techsupport/comments/125qacg/comment/je8t4ru/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button).
+
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
