@@ -91,7 +91,7 @@ namespace WelcomeScreenCustomizer
 
             // Version label
             Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            string versionText = $"{version.Major}.{version.Minor}.{version.Build}";
+            string versionText = $"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
             versionLabel = new Label
             {
                 Text = $"v{versionText}",

@@ -1,15 +1,21 @@
 # Windows 11 Welcome Screen Customizer
 
-A Windows 11 utility that lets you customize the initial login/welcome screen background - the screen you see when starting your PC. Unlike the built-in Windows Settings which only changes the lock screen, this tool specifically modifies the welcome screen through registry modifications.
+A Windows 11 utility that lets you customize the initial login/welcome screen background - the screen you see when starting your PC. While some users can change this background through Windows Settings (Personalization > Lock screen), others find that these settings don't affect their welcome screen. This tool provides a reliable way to set the welcome screen background through registry modifications. The changes are applied system-wide and affect all user accounts on the PC.
 
-## Why This Tool?
-In Windows 11, changing your lock screen background through Windows Settings only affects the lock screen you see when locking your PC (Win + L). However, it does not change the background of the initial login screen that appears when you first start your PC. Windows 11 does not provide any built-in settings to customize this initial login screen, so this tool fills that gap by providing a simple interface to change it through registry modifications.
+## Do You Need This Tool?
+Before using this tool, try changing your lock screen background through Windows Settings:
+1. Open Windows Settings
+2. Go to Personalization > Lock screen
+3. Change the background and check if it affects your welcome screen (the screen you see when starting your PC)
+
+If the Windows Settings method works for you, you don't need this tool. However, if you find that changing the lock screen background only affects what you see when locking your PC (Win + L) but not the initial login screen, then this tool can help by directly modifying the necessary registry settings.
 
 ## Features
 - Select an image file through Windows Explorer
 - Set the image as welcome screen background
 - Prevents override by OS
 - Undo changes with a single click
+- Works even when Windows Settings doesn't affect the welcome screen
 
 ## Requirements
 - Windows 11
